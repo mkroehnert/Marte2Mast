@@ -1537,6 +1537,14 @@ public class HelperFunctions {
 			e.printStackTrace();
 			Log.println("copyFile2Directory: IOException");
 		}
+
+		try {
+			inputStream.close();
+			outputStream.close();
+		} catch (Exception e) {
+			// only close the streams and don't care if closing them fails
+		}
+
 		return true;
 	}// copyFile2Directory
 

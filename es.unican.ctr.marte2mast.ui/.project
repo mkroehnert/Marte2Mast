@@ -3,6 +3,7 @@
 	<name>es.unican.ctr.marte2mast.ui</name>
 	<comment></comment>
 	<projects>
+		<project>es.unican.ctr.marte2mast</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

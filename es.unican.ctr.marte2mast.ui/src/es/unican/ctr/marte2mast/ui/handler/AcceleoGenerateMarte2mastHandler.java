@@ -28,7 +28,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelection;
@@ -44,59 +43,61 @@ import es.unican.ctr.marte2mast.ui.common.GenerateAll;
  */
 public class AcceleoGenerateMarte2mastHandler extends AbstractHandler {
 	/**
-	 * {@inheritDoc}
-	 *
-	 * @see org.eclipse.ui.actions.ActionDelegate#run(org.eclipse.jface.action.IAction)
-	 * @generated
+	 * Create a runnable which generates the mast files from models if @param files is not empty
 	 */
-	public void run(final List<IFile> files) {
-		if (files != null) {
-			IRunnableWithProgress operation = new IRunnableWithProgress() {
-				public void run(IProgressMonitor monitor) {
-					try {
-						Iterator<IFile> filesIt = files.iterator();
-						while (filesIt.hasNext()) {
-							IFile model = (IFile) filesIt.next();
-							URI modelURI = URI.createPlatformResourceURI(model
-									.getFullPath().toString(), true);
-							try {
-								IContainer target = model.getProject()
-										.getFolder("out-m2m");
-								GenerateAll generator = new GenerateAll(
-										modelURI,
-										target.getLocation().toFile(),
-										getArguments());
-								generator.doGenerate(monitor);
-							} catch (IOException e) {
-								IStatus status = new Status(IStatus.ERROR,
-										Activator.PLUGIN_ID, e.getMessage(), e);
-								Activator.getDefault().getLog().log(status);
-							} finally {
-								model.getProject().refreshLocal(
-										IResource.DEPTH_INFINITE, monitor);
-							}
-						}
-					} catch (CoreException e) {
-						IStatus status = new Status(IStatus.ERROR,
-								Activator.PLUGIN_ID, e.getMessage(), e);
-						Activator.getDefault().getLog().log(status);
-					}
-				}
-			};
-			try {
-				PlatformUI.getWorkbench().getProgressService()
-						.run(true, true, operation);
-			} catch (InvocationTargetException e) {
-				IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID,
-						e.getMessage(), e);
-				Activator.getDefault().getLog().log(status);
-			} catch (InterruptedException e) {
-				IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID,
-						e.getMessage(), e);
-				Activator.getDefault().getLog().log(status);
-			}
+	public void generateMastModel(final List<IFile> files) {
+		if (files.isEmpty()) {
+			return;
+		}
+		IRunnableWithProgress operation = createRunnable(files);
+		try {
+			PlatformUI.getWorkbench().getProgressService().run(true, true, operation);
+		} catch (InvocationTargetException e) {
+			IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(), e);
+			Activator.getDefault().getLog().log(status);
+		} catch (InterruptedException e) {
+			IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(), e);
+			Activator.getDefault().getLog().log(status);
 		}
 	}
+
+
+	/**
+	 * Creates a runnable which transforms the selected files into mast models
+	 * @param files List of files to transform
+	 * @return parameterized runnable
+	 */
+	private IRunnableWithProgress createRunnable(final List<IFile> files) {
+		IRunnableWithProgress operation = new IRunnableWithProgress() {
+			public void run(IProgressMonitor monitor) {
+				try {
+					Iterator<IFile> filesIt = files.iterator();
+					while (filesIt.hasNext()) {
+						IFile model = (IFile) filesIt.next();
+						URI modelURI = URI.createPlatformResourceURI(model.getFullPath().toString(), true);
+						try {
+							IContainer target = model.getProject().getFolder("out-m2m");
+							GenerateAll generator = new GenerateAll(
+									modelURI,
+									target.getLocation().toFile(),
+									getArguments());
+							generator.doGenerate(monitor);
+						} catch (IOException e) {
+							IStatus status = new Status(IStatus.ERROR,Activator.PLUGIN_ID, e.getMessage(), e);
+							Activator.getDefault().getLog().log(status);
+						} finally {
+							model.getProject().refreshLocal(IResource.DEPTH_INFINITE, monitor);
+						}
+					}
+				} catch (CoreException e) {
+					IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(), e);
+					Activator.getDefault().getLog().log(status);
+				}
+			}
+		};
+		return operation;
+	}
+	
 
 	/**
 	 * Computes the arguments of the generator.
@@ -108,6 +109,10 @@ public class AcceleoGenerateMarte2mastHandler extends AbstractHandler {
 		return new ArrayList<String>();
 	}
 
+	/**
+	 * This function is called, when the menu item in the popup is selected.
+	 * It transforms the selection into actual files and calls the generateMastModel method
+	 */
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		Shell shell = HandlerUtil.getActiveShell(event);
@@ -121,7 +126,7 @@ public class AcceleoGenerateMarte2mastHandler extends AbstractHandler {
 					modelFiles.add(((org.eclipse.papyrus.infra.onefile.model.ISubResourceFile) object).getFile() );
 				}
 			}
-			run(modelFiles);
+			generateMastModel(modelFiles);
 		} else {
 			MessageDialog.openInformation(shell, "Info", "Please select a .uml file");
 		}

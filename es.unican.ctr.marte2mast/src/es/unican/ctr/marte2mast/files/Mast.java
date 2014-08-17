@@ -495,20 +495,7 @@ public class Mast {
 				// Log.println("*****"+theLastOperationName +" - "+theName);
 				org.eclipse.uml2.uml.Element theElement = HelperFunctions.getElementWithLongName(theModel, theLastOperationName);
 
-				String propertyMode = "'" + mModeID + "%" + theName + "'";// mode
-																			// value
-																			// has
-																			// to
-																			// be
-																			// surrounded
-																			// by
-																			// "'"
-																			// character
-																			// (ref:
-																			// old
-																			// papyrus'
-																			// VSL
-																			// editor)
+				String propertyMode = "'" + mModeID + "%" + theName + "'";// mode value has to be surrounded by "'" character (ref: old papyrus' VSL editor)
 
 				String maxJitterTime = HelperFunctions.generateNFP_DurationText(null, null, theJitter, "s", "calc", propertyMode);
 
@@ -542,11 +529,7 @@ public class Mast {
 					// Log.println("");
 					// Log.println("check father child list");
 					if (fatherChildrensList.size() > 1) {
-						for (int j = 0; j < fatherChildrensList.size(); j++) {// don't
-																				// include
-																				// the
-																				// first
-																				// one
+						for (int j = 0; j < fatherChildrensList.size(); j++) {// don't include the first one
 							// Log.println(theLastOperationName + " -> " +
 							// HelperFunctions.getElementLongName(fatherChildrensList.get(j).mElement).toLowerCase());
 							if (theLastOperationName.equals(HelperFunctions.getElementLongName(fatherChildrensList.get(j).mElement).toLowerCase()) && fatherChildrensList.get(j).mInternalEventName.toLowerCase().equals(theName)) {

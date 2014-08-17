@@ -1313,16 +1313,31 @@ public class ActivityFunctions {
 		mTransactionName = activityName;
 		mEventHandler.mOutputEvent = mTransactionName + "__Internal_Event_" + (++mInternalEventCounter);
 
-		EList<Element> listOfElements = elt.getOwnedElements();
 		Element gaWorkloadEvent = null;
+
+		// check owned elements
+		EList<Element> listOfElements = elt.getOwnedElements();
 		for (Element anElement : listOfElements) {
 			if (HelperFunctions.hasStereotype(anElement, "GaWorkloadEvent")) {
 				gaWorkloadEvent = anElement;
-				break;// one found, no need to look for more (should't be
-						// more)
-			}// if workload
-		}// for listOfElements
+				break;// one found, no need to look for more (should't be more)
+			}
+		}
 
+		// check owned nodes (ActivityNodes are not part of OwnedElements)
+		if (null == gaWorkloadEvent) {
+			EList<ActivityNode> ownedNodes = ((Activity)elt).getOwnedNodes();
+			for (Element anElement : ownedNodes) {
+				if (HelperFunctions.hasStereotype(anElement, "GaWorkloadEvent")) {
+					gaWorkloadEvent = anElement;
+					break;// one found, no need to look for more (should't be more)
+				}
+			}
+		}
+
+		if (null == gaWorkloadEvent) {
+			return;
+		}
 		// activity elements extraction:
 		Vector<NamedElement> pathElements = new Vector<NamedElement>();
 		pathElements = extractActivityElements(gaWorkloadEvent);
@@ -1332,12 +1347,7 @@ public class ActivityFunctions {
 		// mTransactionFatherChildrensLists.clear();
 		mNextInputEvent = ((NamedElement) gaWorkloadEvent).getName();
 		for (NamedElement anElement : pathElements) {
-			mFatherChildrenList = new Vector<fatherChildrenStruct>();// didn't
-																		// work
-																		// if
-																		// i
-																		// used
-																		// .clear()??
+			mFatherChildrenList = new Vector<fatherChildrenStruct>();// didn't work if i used .clear()??
 			// ////
 			extractStepData(anElement, "");
 			// ////

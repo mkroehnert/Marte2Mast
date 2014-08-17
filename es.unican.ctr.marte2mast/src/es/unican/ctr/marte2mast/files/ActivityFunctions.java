@@ -1304,150 +1304,150 @@ public class ActivityFunctions {
 	 */
 	public static void extractActivityData(Element elt) {
 
-		if (elt instanceof Activity) {
-			String tempText;
-			String activityName = ((NamedElement) elt).getName();
+		if (!(elt instanceof Activity)) {
+			return;
+		}
+		String tempText;
+		String activityName = ((NamedElement) elt).getName();
 
-			mTransactionName = activityName;
-			mEventHandler.mOutputEvent = mTransactionName + "__Internal_Event_" + (++mInternalEventCounter);
+		mTransactionName = activityName;
+		mEventHandler.mOutputEvent = mTransactionName + "__Internal_Event_" + (++mInternalEventCounter);
 
-			EList<Element> listOfElements = elt.getOwnedElements();
-			Element gaWorkloadEvent = null;
-			for (Element anElement : listOfElements) {
-				if (HelperFunctions.hasStereotype(anElement, "GaWorkloadEvent")) {
-					gaWorkloadEvent = anElement;
-					break;// one found, no need to look for more (should't be
-							// more)
-				}// if workload
-			}// for listOfElements
+		EList<Element> listOfElements = elt.getOwnedElements();
+		Element gaWorkloadEvent = null;
+		for (Element anElement : listOfElements) {
+			if (HelperFunctions.hasStereotype(anElement, "GaWorkloadEvent")) {
+				gaWorkloadEvent = anElement;
+				break;// one found, no need to look for more (should't be
+						// more)
+			}// if workload
+		}// for listOfElements
 
-			// activity elements extraction:
-			Vector<NamedElement> pathElements = new Vector<NamedElement>();
-			pathElements = extractActivityElements(gaWorkloadEvent);
+		// activity elements extraction:
+		Vector<NamedElement> pathElements = new Vector<NamedElement>();
+		pathElements = extractActivityElements(gaWorkloadEvent);
 
-			// extract data from
-			// steps/////////////////////////////////////////////////////
-			// mTransactionFatherChildrensLists.clear();
-			mNextInputEvent = ((NamedElement) gaWorkloadEvent).getName();
-			for (NamedElement anElement : pathElements) {
-				mFatherChildrenList = new Vector<fatherChildrenStruct>();// didn't
-																			// work
-																			// if
-																			// i
-																			// used
-																			// .clear()??
-				// ////
-				extractStepData(anElement, "");
-				// ////
-				fatherChildrenStruct aFatherChildrenStruct = new fatherChildrenStruct();
-				aFatherChildrenStruct.mElement = anElement;
-				aFatherChildrenStruct.mInternalEventName = mEventHandler.mOutputEvent;
-				mFatherChildrenList.add(aFatherChildrenStruct);
-				// Log.println("added: "+anElement.getName());
-				mTransactionFatherChildrensLists.add(mFatherChildrenList);
-			}// end for
+		// extract data from
+		// steps/////////////////////////////////////////////////////
+		// mTransactionFatherChildrensLists.clear();
+		mNextInputEvent = ((NamedElement) gaWorkloadEvent).getName();
+		for (NamedElement anElement : pathElements) {
+			mFatherChildrenList = new Vector<fatherChildrenStruct>();// didn't
+																		// work
+																		// if
+																		// i
+																		// used
+																		// .clear()??
+			// ////
+			extractStepData(anElement, "");
+			// ////
+			fatherChildrenStruct aFatherChildrenStruct = new fatherChildrenStruct();
+			aFatherChildrenStruct.mElement = anElement;
+			aFatherChildrenStruct.mInternalEventName = mEventHandler.mOutputEvent;
+			mFatherChildrenList.add(aFatherChildrenStruct);
+			// Log.println("added: "+anElement.getName());
+			mTransactionFatherChildrensLists.add(mFatherChildrenList);
+		}// end for
 
-			// Log.println("father-children list:");
-			// for(int i=0;i<mTransactionFatherChildrensLists.size();i++){
-			// Vector<fatherChildrenStruct> fc =
-			// mTransactionFatherChildrensLists.get(i);
-			// for(int j=0;j<fc.size();j++){
-			// Log.println(HelperFunctions.getElementLongName(fc.get(j).mElement)+" - "+fc.get(j).mInternalEventName);
-			//
-			// }
-			// Log.println("");
-			// }
+		// Log.println("father-children list:");
+		// for(int i=0;i<mTransactionFatherChildrensLists.size();i++){
+		// Vector<fatherChildrenStruct> fc =
+		// mTransactionFatherChildrensLists.get(i);
+		// for(int j=0;j<fc.size();j++){
+		// Log.println(HelperFunctions.getElementLongName(fc.get(j).mElement)+" - "+fc.get(j).mInternalEventName);
+		//
+		// }
+		// Log.println("");
+		// }
 
-			// ////////CLOSE LAST EV HANDLER//////////////////
-			// check if we have an event handler not closed
-			if (!mEventHandler.mInputEvent.equals("")) {
-				// close old ///////
-				closeEventHandler();
+		// ////////CLOSE LAST EV HANDLER//////////////////
+		// check if we have an event handler not closed
+		if (!mEventHandler.mInputEvent.equals("")) {
+			// close old ///////
+			closeEventHandler();
+		}
+		// ////////////////////////////////
+
+		// get constraint data (GaLatencyObs)
+		Constraint theConstraint = null;
+		for (Element anElement : listOfElements) {
+			if (anElement instanceof Constraint) {
+				if (HelperFunctions.hasStereotype(anElement, "GaLatencyObs")) {
+					Log.debugPrintln("found a constraint with a valid stereotype: " + ((NamedElement) anElement).getName());
+					if (HelperFunctions.getStereotypeProperty(anElement, "GaLatencyObs", "latency") != null) {
+						theConstraint = (Constraint) anElement;
+					}
+				}// end if SaStep
+			}// end if constraint
+		}
+
+		// fill transaction's
+		// text/////////////////////////////////////////////////////
+		Log.debugPrintln("storing text from a transaction");
+
+		tempText = "";
+		tempText += "\nTransaction (\n";
+
+		tempText += "    Type            => Regular,\n";
+
+		tempText += "    Name            => " + activityName + ",\n";// transaction's
+																		// name
+																		// =
+																		// activity's
+																		// name
+
+		tempText += "    External_Events => (\n";
+		// ---------------------------External_Events--------------------------------------
+		tempText += getExternalEventText(gaWorkloadEvent);
+		// ---------------------------End
+		// External_Events----------------------------------
+		tempText += "\n    ),\n";
+
+		tempText += "    Internal_Events => (\n";
+		// ---------------------------Internal_Events--------------------------------------
+		tempText += getInternalEventsText(mInternalEventList, theConstraint, (NamedElement) gaWorkloadEvent);// intEvtsText;
+		// ---------------------------End
+		// Internal_Events----------------------------------
+		tempText += "\n    ),\n";
+
+		tempText += "    Event_Handlers  => (\n";
+		// ---------------------------Event_Handlers
+		// --------------------------------------
+		int index = 0;
+		String evtHandlersText = "";
+		Log.debugPrintln("Handlers:" + mEventHandlerList.size());
+		for (eventHandler theHandler : mEventHandlerList) {
+			Log.debugPrintln("Handler: " + index + " - " + theHandler.mOperation);
+
+			if (index > 0) {
+				evtHandlersText += ",\n";
 			}
-			// ////////////////////////////////
+			index++;
+			evtHandlersText += "        (Type                 => Activity,\n";
+			evtHandlersText += "         Input_Event          => " + theHandler.mInputEvent + ",\n";
+			evtHandlersText += "         Output_Event         => " + theHandler.mOutputEvent + ",\n";
+			evtHandlersText += "         Activity_Operation   => " + theHandler.mOperation + ",\n";
+			evtHandlersText += "         Activity_Server      => " + theHandler.mServer;
+			evtHandlersText += "\n        )";
+		}
+		tempText += evtHandlersText;
+		// ---------------------------End Event_Handlers
+		// ----------------------------------
+		tempText += "\n    )\n";
 
-			// get constraint data (GaLatencyObs)
-			Constraint theConstraint = null;
-			for (Element anElement : listOfElements) {
-				if (anElement instanceof Constraint) {
-					if (HelperFunctions.hasStereotype(anElement, "GaLatencyObs")) {
-						Log.debugPrintln("found a constraint with a valid stereotype: " + ((NamedElement) anElement).getName());
-						if (HelperFunctions.getStereotypeProperty(anElement, "GaLatencyObs", "latency") != null) {
-							theConstraint = (Constraint) anElement;
-						}
-					}// end if SaStep
-				}// end if constraint
-			}
+		tempText += ");\n";// end transaction
 
-			// fill transaction's
-			// text/////////////////////////////////////////////////////
-			Log.debugPrintln("storing text from a transaction");
+		mTransactionsText += tempText;
+		Log.debugPrintln("finished storing text from a transaction");
+		Log.debugPrintln("");
+		// CLEAN UP
+		mInternalEventList.clear();
+		mInternalEventCounter = 0;
+		mEventHandlerList.clear();
+		mActualThread = "";
+		mEventHandlerOperationList.clear();
 
-			tempText = "";
-			tempText += "\nTransaction (\n";
-
-			tempText += "    Type            => Regular,\n";
-
-			tempText += "    Name            => " + activityName + ",\n";// transaction's
-																			// name
-																			// =
-																			// activity's
-																			// name
-
-			tempText += "    External_Events => (\n";
-			// ---------------------------External_Events--------------------------------------
-			tempText += getExternalEventText(gaWorkloadEvent);
-			// ---------------------------End
-			// External_Events----------------------------------
-			tempText += "\n    ),\n";
-
-			tempText += "    Internal_Events => (\n";
-			// ---------------------------Internal_Events--------------------------------------
-			tempText += getInternalEventsText(mInternalEventList, theConstraint, (NamedElement) gaWorkloadEvent);// intEvtsText;
-			// ---------------------------End
-			// Internal_Events----------------------------------
-			tempText += "\n    ),\n";
-
-			tempText += "    Event_Handlers  => (\n";
-			// ---------------------------Event_Handlers
-			// --------------------------------------
-			int index = 0;
-			String evtHandlersText = "";
-			Log.debugPrintln("Handlers:" + mEventHandlerList.size());
-			for (eventHandler theHandler : mEventHandlerList) {
-				Log.debugPrintln("Handler: " + index + " - " + theHandler.mOperation);
-
-				if (index > 0) {
-					evtHandlersText += ",\n";
-				}
-				index++;
-				evtHandlersText += "        (Type                 => Activity,\n";
-				evtHandlersText += "         Input_Event          => " + theHandler.mInputEvent + ",\n";
-				evtHandlersText += "         Output_Event         => " + theHandler.mOutputEvent + ",\n";
-				evtHandlersText += "         Activity_Operation   => " + theHandler.mOperation + ",\n";
-				evtHandlersText += "         Activity_Server      => " + theHandler.mServer;
-				evtHandlersText += "\n        )";
-			}
-			tempText += evtHandlersText;
-			// ---------------------------End Event_Handlers
-			// ----------------------------------
-			tempText += "\n    )\n";
-
-			tempText += ");\n";// end transaction
-
-			mTransactionsText += tempText;
-			Log.debugPrintln("finished storing text from a transaction");
-			Log.debugPrintln("");
-			// CLEAN UP
-			mInternalEventList.clear();
-			mInternalEventCounter = 0;
-			mEventHandlerList.clear();
-			mActualThread = "";
-			mEventHandlerOperationList.clear();
-
-			Log.println(">  Activity: " + ((NamedElement) elt).getName());
-		}// end if instanceof activity
-
+		Log.println(">  Activity: " + ((NamedElement) elt).getName());
 	}// extractActivityData END ---------
 
 	/**

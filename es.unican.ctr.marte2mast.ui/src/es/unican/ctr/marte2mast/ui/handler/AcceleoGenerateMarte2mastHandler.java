@@ -38,12 +38,16 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import es.unican.ctr.marte2mast.ui.Activator;
 import es.unican.ctr.marte2mast.ui.common.GenerateAll;
+
 /**
  * Marte2mast code generation.
  */
 public class AcceleoGenerateMarte2mastHandler extends AbstractHandler {
+	private final String outputDirectory = "out-m2m";
+
 	/**
-	 * Create a runnable which generates the mast files from models if @param files is not empty
+	 * Create a runnable which generates the mast files from models if @param
+	 * files is not empty
 	 */
 	public void generateMastModel(final List<IFile> files) {
 		if (files.isEmpty()) {
@@ -61,10 +65,11 @@ public class AcceleoGenerateMarte2mastHandler extends AbstractHandler {
 		}
 	}
 
-
 	/**
 	 * Creates a runnable which transforms the selected files into mast models
-	 * @param files List of files to transform
+	 * 
+	 * @param files
+	 *            List of files to transform
 	 * @return parameterized runnable
 	 */
 	private IRunnableWithProgress createRunnable(final List<IFile> files) {
@@ -76,14 +81,11 @@ public class AcceleoGenerateMarte2mastHandler extends AbstractHandler {
 						IFile model = (IFile) filesIt.next();
 						URI modelURI = URI.createPlatformResourceURI(model.getFullPath().toString(), true);
 						try {
-							IContainer target = model.getProject().getFolder("out-m2m");
-							GenerateAll generator = new GenerateAll(
-									modelURI,
-									target.getLocation().toFile(),
-									getArguments());
+							IContainer target = model.getProject().getFolder(outputDirectory);
+							GenerateAll generator = new GenerateAll(modelURI, target.getLocation().toFile(), getArguments());
 							generator.doGenerate(monitor);
 						} catch (IOException e) {
-							IStatus status = new Status(IStatus.ERROR,Activator.PLUGIN_ID, e.getMessage(), e);
+							IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(), e);
 							Activator.getDefault().getLog().log(status);
 						} finally {
 							model.getProject().refreshLocal(IResource.DEPTH_INFINITE, monitor);
@@ -97,7 +99,6 @@ public class AcceleoGenerateMarte2mastHandler extends AbstractHandler {
 		};
 		return operation;
 	}
-	
 
 	/**
 	 * Computes the arguments of the generator.
@@ -110,20 +111,21 @@ public class AcceleoGenerateMarte2mastHandler extends AbstractHandler {
 	}
 
 	/**
-	 * This function is called, when the menu item in the popup is selected.
-	 * It transforms the selection into actual files and calls the generateMastModel method
+	 * This function is called, when the menu item in the popup is selected. It
+	 * transforms the selection into actual files and calls the
+	 * generateMastModel method
 	 */
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		Shell shell = HandlerUtil.getActiveShell(event);
 		ISelection selection = HandlerUtil.getActiveMenuSelection(event);
-		
+
 		List<IFile> modelFiles = new ArrayList<IFile>();
 		if (selection instanceof IStructuredSelection) {
 			List<?> selectionList = ((IStructuredSelection) selection).toList();
 			for (Object object : selectionList) {
 				if (object instanceof org.eclipse.papyrus.infra.onefile.model.ISubResourceFile) {
-					modelFiles.add(((org.eclipse.papyrus.infra.onefile.model.ISubResourceFile) object).getFile() );
+					modelFiles.add(((org.eclipse.papyrus.infra.onefile.model.ISubResourceFile) object).getFile());
 				}
 			}
 			generateMastModel(modelFiles);

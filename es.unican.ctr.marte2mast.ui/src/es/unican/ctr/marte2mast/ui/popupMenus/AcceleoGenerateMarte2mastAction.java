@@ -38,75 +38,78 @@ import org.eclipse.ui.actions.ActionDelegate;
  * Marte2mast code generation.
  */
 public class AcceleoGenerateMarte2mastAction extends ActionDelegate implements IActionDelegate {
-  
-  /**
-   * Selected model files.
-   */
-  protected List<IFile> files;
 
-  /**{@inheritDoc}
-   *
-   * @see org.eclipse.ui.actions.ActionDelegate#selectionChanged(org.eclipse.jface.action.IAction, org.eclipse.jface.viewers.ISelection)
-   * @generated
-   */
-  @SuppressWarnings("unchecked")
-  public void selectionChanged(IAction action, ISelection selection) {
-    if (selection instanceof IStructuredSelection) {
-      files = ((IStructuredSelection) selection).toList();
-    }
-  }
+	/**
+	 * Selected model files.
+	 */
+	protected List<IFile> files;
 
-  /**{@inheritDoc}
-   *
-   * @see org.eclipse.ui.actions.ActionDelegate#run(org.eclipse.jface.action.IAction)
-   * @generated
-   */
-  public void run(IAction action) {
-    if (files != null) {
-      IRunnableWithProgress operation = new IRunnableWithProgress() {
-        public void run(IProgressMonitor monitor) {
-          try {
-            Iterator<IFile> filesIt = files.iterator();
-            while (filesIt.hasNext()) {
-              IFile model = (IFile)filesIt.next();
-              URI modelURI = URI.createPlatformResourceURI(model.getFullPath().toString(), true);
-              try {
-                IContainer target = model.getProject().getFolder("out-m2m");
-                GenerateAll generator = new GenerateAll(modelURI, target.getLocation().toFile(), getArguments());
-                generator.doGenerate(monitor);
-              } catch (IOException e) {
-                IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(), e);
-                Activator.getDefault().getLog().log(status);
-              } finally {
-                model.getProject().refreshLocal(IResource.DEPTH_INFINITE, monitor);
-              }
-            }
-          } catch (CoreException e) {
-            IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(), e);
-            Activator.getDefault().getLog().log(status);
-          }
-        }
-      };
-      try {
-        PlatformUI.getWorkbench().getProgressService().run(true, true, operation);
-      } catch (InvocationTargetException e) {
-        IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(), e);
-        Activator.getDefault().getLog().log(status);
-      } catch (InterruptedException e) {
-        IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(), e);
-        Activator.getDefault().getLog().log(status);
-      }
-    }
-  }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @see org.eclipse.ui.actions.ActionDelegate#selectionChanged(org.eclipse.jface.action.IAction,
+	 *      org.eclipse.jface.viewers.ISelection)
+	 * @generated
+	 */
+	@SuppressWarnings("unchecked")
+	public void selectionChanged(IAction action, ISelection selection) {
+		if (selection instanceof IStructuredSelection) {
+			files = ((IStructuredSelection) selection).toList();
+		}
+	}
 
-  /**
-   * Computes the arguments of the generator.
-   * 
-   * @return the arguments
-   * @generated
-   */
-  protected List<? extends Object> getArguments() {
-    return new ArrayList<String>();
-  }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @see org.eclipse.ui.actions.ActionDelegate#run(org.eclipse.jface.action.IAction)
+	 * @generated
+	 */
+	public void run(IAction action) {
+		if (files != null) {
+			IRunnableWithProgress operation = new IRunnableWithProgress() {
+				public void run(IProgressMonitor monitor) {
+					try {
+						Iterator<IFile> filesIt = files.iterator();
+						while (filesIt.hasNext()) {
+							IFile model = (IFile) filesIt.next();
+							URI modelURI = URI.createPlatformResourceURI(model.getFullPath().toString(), true);
+							try {
+								IContainer target = model.getProject().getFolder("out-m2m");
+								GenerateAll generator = new GenerateAll(modelURI, target.getLocation().toFile(), getArguments());
+								generator.doGenerate(monitor);
+							} catch (IOException e) {
+								IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(), e);
+								Activator.getDefault().getLog().log(status);
+							} finally {
+								model.getProject().refreshLocal(IResource.DEPTH_INFINITE, monitor);
+							}
+						}
+					} catch (CoreException e) {
+						IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(), e);
+						Activator.getDefault().getLog().log(status);
+					}
+				}
+			};
+			try {
+				PlatformUI.getWorkbench().getProgressService().run(true, true, operation);
+			} catch (InvocationTargetException e) {
+				IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(), e);
+				Activator.getDefault().getLog().log(status);
+			} catch (InterruptedException e) {
+				IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(), e);
+				Activator.getDefault().getLog().log(status);
+			}
+		}
+	}
+
+	/**
+	 * Computes the arguments of the generator.
+	 * 
+	 * @return the arguments
+	 * @generated
+	 */
+	protected List<? extends Object> getArguments() {
+		return new ArrayList<String>();
+	}
 
 }

@@ -27,14 +27,15 @@ public class Activator extends Plugin {
 	 * The shared instance.
 	 */
 	private static Activator plugin;
-	
+
 	/**
 	 * The constructor.
 	 */
 	public Activator() {
 	}
 
-	/**{@inheritDoc}
+	/**
+	 * {@inheritDoc}
 	 *
 	 * @see org.eclipse.core.runtime.Plugin#start(org.osgi.framework.BundleContext)
 	 */
@@ -43,7 +44,8 @@ public class Activator extends Plugin {
 		plugin = this;
 	}
 
-	/**{@inheritDoc}
+	/**
+	 * {@inheritDoc}
 	 *
 	 * @see org.eclipse.core.runtime.Plugin#stop(org.osgi.framework.BundleContext)
 	 */

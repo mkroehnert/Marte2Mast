@@ -25,7 +25,6 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.osgi.framework.Bundle;
 
-
 /**
  * Main entry point of the 'Marte2mast' generation module.
  */
@@ -60,10 +59,10 @@ public class GenerateAll {
 	 * @generated
 	 */
 	public GenerateAll(URI modelURI, File targetFolder, List<? extends Object> arguments) {
-    this.modelURI = modelURI;
-    this.targetFolder = targetFolder;
-    this.arguments = arguments;
-  }
+		this.modelURI = modelURI;
+		this.targetFolder = targetFolder;
+		this.arguments = arguments;
+	}
 
 	/**
 	 * Launches the generation.
@@ -75,24 +74,25 @@ public class GenerateAll {
 	 * @generated
 	 */
 	public void doGenerate(IProgressMonitor monitor) throws IOException {
-    if (!targetFolder.exists()) {
-      targetFolder.mkdirs();
-    }
-    
-    // final URI template0 = getTemplateURI("es.unican.ctr.marte2mast", new Path("/es/unican/ctr/marte2mast/files/log.emtl"));
-    // es.unican.ctr.marte2mast.files.Log gen0 = new es.unican.ctr.marte2mast.files.Log(modelURI, targetFolder, arguments) {
-    //	protected URI createTemplateURI(String entry) {
-    //		return template0;
-    //	}
-    //};
-    //gen0.doGenerate(BasicMonitor.toMonitor(monitor));
-    es.unican.ctr.marte2mast.files.Marte2mast gen0 = new es.unican.ctr.marte2mast.files.Marte2mast(modelURI, targetFolder, arguments);
-    gen0.doGenerate(BasicMonitor.toMonitor(monitor));
+		if (!targetFolder.exists()) {
+			targetFolder.mkdirs();
+		}
 
-      
-    
-  }
-	
+		// final URI template0 = getTemplateURI("es.unican.ctr.marte2mast", new
+		// Path("/es/unican/ctr/marte2mast/files/log.emtl"));
+		// es.unican.ctr.marte2mast.files.Log gen0 = new
+		// es.unican.ctr.marte2mast.files.Log(modelURI, targetFolder, arguments)
+		// {
+		// protected URI createTemplateURI(String entry) {
+		// return template0;
+		// }
+		// };
+		// gen0.doGenerate(BasicMonitor.toMonitor(monitor));
+		es.unican.ctr.marte2mast.files.Marte2mast gen0 = new es.unican.ctr.marte2mast.files.Marte2mast(modelURI, targetFolder, arguments);
+		gen0.doGenerate(BasicMonitor.toMonitor(monitor));
+
+	}
+
 	/**
 	 * Finds the template in the plug-in. Returns the template plug-in URI.
 	 * 
@@ -106,40 +106,40 @@ public class GenerateAll {
 	 */
 	@SuppressWarnings("unchecked")
 	private URI getTemplateURI(String bundleID, IPath relativePath) throws IOException {
-    Bundle bundle = Platform.getBundle(bundleID);
-    if (bundle == null) {
-      // no need to go any further
-      return URI.createPlatformResourceURI(new Path(bundleID).append(relativePath).toString(), false);
-    }
-    URL url = bundle.getEntry(relativePath.toString());
-    if (url == null && relativePath.segmentCount() > 1) {
-      Enumeration<URL> entries = bundle.findEntries("/", "*.emtl", true);
-      if (entries != null) {
-        String[] segmentsRelativePath = relativePath.segments();
-        while (url == null && entries.hasMoreElements()) {
-          URL entry = entries.nextElement();
-          IPath path = new Path(entry.getPath());
-          if (path.segmentCount() > relativePath.segmentCount()) {
-            path = path.removeFirstSegments(path.segmentCount() - relativePath.segmentCount());
-          }
-          String[] segmentsPath = path.segments();
-          boolean equals = segmentsPath.length == segmentsRelativePath.length;
-          for (int i = 0; equals && i < segmentsPath.length; i++) {
-            equals = segmentsPath[i].equals(segmentsRelativePath[i]);
-          }
-          if (equals) {
-            url = bundle.getEntry(entry.getPath());
-          }
-        }
-      }
-    }
-    URI result;
-    if (url != null) {
-      result = URI.createPlatformPluginURI(new Path(bundleID).append(new Path(url.getPath())).toString(), false);
-    } else {
-      result = URI.createPlatformResourceURI(new Path(bundleID).append(relativePath).toString(), false);
-    }
-    return result;
-  }
+		Bundle bundle = Platform.getBundle(bundleID);
+		if (bundle == null) {
+			// no need to go any further
+			return URI.createPlatformResourceURI(new Path(bundleID).append(relativePath).toString(), false);
+		}
+		URL url = bundle.getEntry(relativePath.toString());
+		if (url == null && relativePath.segmentCount() > 1) {
+			Enumeration<URL> entries = bundle.findEntries("/", "*.emtl", true);
+			if (entries != null) {
+				String[] segmentsRelativePath = relativePath.segments();
+				while (url == null && entries.hasMoreElements()) {
+					URL entry = entries.nextElement();
+					IPath path = new Path(entry.getPath());
+					if (path.segmentCount() > relativePath.segmentCount()) {
+						path = path.removeFirstSegments(path.segmentCount() - relativePath.segmentCount());
+					}
+					String[] segmentsPath = path.segments();
+					boolean equals = segmentsPath.length == segmentsRelativePath.length;
+					for (int i = 0; equals && i < segmentsPath.length; i++) {
+						equals = segmentsPath[i].equals(segmentsRelativePath[i]);
+					}
+					if (equals) {
+						url = bundle.getEntry(entry.getPath());
+					}
+				}
+			}
+		}
+		URI result;
+		if (url != null) {
+			result = URI.createPlatformPluginURI(new Path(bundleID).append(new Path(url.getPath())).toString(), false);
+		} else {
+			result = URI.createPlatformResourceURI(new Path(bundleID).append(relativePath).toString(), false);
+		}
+		return result;
+	}
 
 }

@@ -190,9 +190,6 @@ public class Mast {
 					String eclipseLocation = System.getProperties().get("osgi.install.area").toString().substring(5);// eclipse
 					mastLocation = eclipseLocation + "mast/";
 					String mastLibsLocation = mastLocation + "lib/";
-					// String eclipseLocation =
-					// System.getProperties().get("osgi.instance.area").toString().substring(6);//the
-					// workspace
 					String[] commandLinux = { "/bin/sh", "-c", "export PATH=" + mastLocation + ":$PATH;export LD_LIBRARY_PATH=" + mastLibsLocation + ":$LD_LIBRARY_PATH;" + mastLocation + "gmast" };
 					theProcess = theRuntime.exec(commandLinux);
 				} else {// //////////////WIN////////////////////////////////
@@ -277,9 +274,7 @@ public class Mast {
 		if (GUI.mFilePath.equals(""))
 			return false;
 		filePath = GUI.mFilePath;
-
 		// Log.println(filePath);
-		// filePath="/home/alvaro/Escritorio/2011_01_26_marte2mast/workspaces/workspace_01/es.unican.ctr.marte2mast.files/output_m2m/teleoperated_robot.mast.out.xml";
 
 		// create the vector where we store the data from the transactions
 		transactionsXML = new Vector<transactionDataXML>();

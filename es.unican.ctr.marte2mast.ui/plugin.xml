@@ -27,4 +27,18 @@
 		  id="es.unican.ctr.marte2mast.ui.generate" name="Convert">
 		</command>
 	</extension>
+ <extension
+       point="org.eclipse.ui.preferencePages">
+    <page
+          class="es.unican.ctr.marte2mast.ui.preferences.Marte2MastPreferencePage"
+          id="es.unican.ctr.marte2mast.ui.preferences.Marte2MastPreferencePage"
+          name="Marte2MAST">
+    </page>
+ </extension>
+ <extension
+       point="org.eclipse.core.runtime.preferences">
+    <initializer
+          class="es.unican.ctr.marte2mast.ui.preferences.Marte2MastPreferenceInitializer">
+    </initializer>
+ </extension>
 </plugin>

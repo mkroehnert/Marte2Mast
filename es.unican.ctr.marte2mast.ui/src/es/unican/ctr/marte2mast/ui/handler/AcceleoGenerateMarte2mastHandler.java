@@ -38,12 +38,13 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import es.unican.ctr.marte2mast.ui.Activator;
 import es.unican.ctr.marte2mast.ui.common.GenerateAll;
+import es.unican.ctr.marte2mast.ui.preferences.Marte2MastPreferenceConstants;
 
 /**
  * Marte2mast code generation.
  */
 public class AcceleoGenerateMarte2mastHandler extends AbstractHandler {
-	private final String outputDirectory = "out-m2m";
+	private final String outputDirectory = Activator.getDefault().getPreferenceStore().getString(Marte2MastPreferenceConstants.P_OUTPUT_PATH);
 
 	/**
 	 * Create a runnable which generates the mast files from models if @param
